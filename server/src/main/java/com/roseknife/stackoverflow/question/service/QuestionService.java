@@ -42,7 +42,7 @@ public class QuestionService {
 
         Optional.ofNullable(question.getQuestionTags()).ifPresent(questionTags -> {
             questionTagRepository.deleteByQuestionQuestionId(findQuestion.getQuestionId());
-            findQuestion.setQuestionTags(questionTags);
+//            findQuestion.setQuestionTags(questionTags);
         });
         Question updatedQuestion = beanUtils.copyNonNullProperties(question, findQuestion);
 
@@ -53,16 +53,16 @@ public class QuestionService {
 
         Question findQuestion =
                 optionalQuestion.orElseThrow(() -> new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
-
+        //엔티티 안에서 증가/감소 리팩터링
         switch(option){
             case FIND:
-                findQuestion.setViewCount(findQuestion.getViewCount()+1);   //단건 조회시 조회수 증가
+                findQuestion.viewCountPlus();   //단건 조회시 조회수 증가
                 break;
             case ANSWER:
-                findQuestion.setAnswerCount(findQuestion.getAnswerCount()+1);
+                findQuestion.answerCountPlus();
                 break;
             case ANSWER_DEL:
-                findQuestion.setAnswerCount(findQuestion.getAnswerCount()-1);
+                findQuestion.answerCountMinus();
                 break;
         }
 
