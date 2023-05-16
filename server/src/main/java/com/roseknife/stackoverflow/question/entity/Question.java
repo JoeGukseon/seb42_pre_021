@@ -34,9 +34,11 @@ public class Question extends Auditable {
     @Column(length = 1_000_000_000)
     private String markdown;
 
-    private Integer viewCount;    //초기화 = 0
-    private Integer answerCount;  //초기화 = 0
-    private Integer voteCount;
+    //카운트 초기화 엔티티에서 하는게 유리 - 23.5.16 리팩토링
+    private Integer viewCount=0;
+    private Integer answerCount=0;
+    private Integer voteCount=0;
+
 //    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")

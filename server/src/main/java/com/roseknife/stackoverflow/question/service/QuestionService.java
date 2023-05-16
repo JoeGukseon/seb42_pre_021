@@ -32,10 +32,6 @@ public class QuestionService {
     private final CustomBeanUtils<Question> beanUtils;
 
     public Question createQuestion(Question question) {
-        question.setVoteCount(0);
-        question.setViewCount(0);
-        question.setAnswerCount(0);
-
         Question savedQuestion = questionRepository.save(question);
         return savedQuestion;
     }
