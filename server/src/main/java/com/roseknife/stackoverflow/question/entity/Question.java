@@ -68,7 +68,6 @@ public class Question extends Auditable {
     private Member member;
 
     @JsonIgnore //목록으로 가져오는 쪽 에서만 적용해도 가능
-    @Builder.Default
     @OneToMany(mappedBy = "question",cascade = CascadeType.REMOVE)    //
     private List<Answer> answers = new ArrayList<>();
 
@@ -78,6 +77,7 @@ public class Question extends Auditable {
 
     //질문글과 같이 questionTag의 값이 같이 움직이기 때문에 양방향 맵핑 해야함!(글 생성 및 삭제)
     @JsonIgnore
+    @Builder.Default
     @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<QuestionTag> questionTags = new ArrayList<>();
 

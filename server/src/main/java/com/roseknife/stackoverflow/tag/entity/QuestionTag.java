@@ -12,11 +12,11 @@ public class QuestionTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questionTagId;
 
+    //진짜 맵핑을 하는 부분 외래키가 저장되는 부분
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "QUESTION_ID")
     private Question question;
-
-    public void addQuestion(Question question) {
+     public void setQuestion(Question question) {
         this.question = question;
         if (!this.question.getQuestionTags().contains(this)) {
             this.question.getQuestionTags().add(this);
@@ -27,7 +27,7 @@ public class QuestionTag {
     @JoinColumn(name = "TAG_ID")
     private Tag tag;
 
-    public void addTag(Tag tag) {
+    public void setTag(Tag tag) {
         this.tag = tag;
         if (!this.tag.getQuestionTags().contains(this)) {
             this.tag.getQuestionTags().add(this);

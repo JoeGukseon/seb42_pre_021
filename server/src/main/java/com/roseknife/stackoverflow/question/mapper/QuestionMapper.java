@@ -15,15 +15,12 @@ import com.roseknife.stackoverflow.question.dto.QuestionDto;
 import com.roseknife.stackoverflow.question.entity.Question;
 import com.roseknife.stackoverflow.tag.entity.QuestionTag;
 import com.roseknife.stackoverflow.tag.entity.Tag;
-import com.roseknife.stackoverflow.tag.repository.TagRepository;
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface QuestionMapper {
@@ -34,54 +31,72 @@ public interface QuestionMapper {
 
     @Mapping(source = "member.memberId",target = "memberId")
     AnswerBookmarkDto.Response answerBookmarkToAnswerBookmarkResponseDto(AnswerBookmark answerBookmark);
-//    @Mapping(source = "memberId",target = "member.memberId")
-    default Question questionPostToQuestion(QuestionDto.Post requestBody,List<Tag> tags) {
+
+    //    @Mapping(source = "memberId",target = "member.memberId")
+    default Question questionPostToQuestion(QuestionDto.Post requestBody) {
         if ( requestBody == null ) {
             return null;
         }
 
-        Question question = new Question();
+        Question.QuestionBuilder question = Question.builder();
         Member member = new Member();
         member.setMemberId(requestBody.getMemberId());
 
-        question.setMember(member);
-        question.setTitle( requestBody.getTitle() );
-        question.setHtml(requestBody.getHtml());
-        question.setMarkdown(requestBody.getMarkdown());
+        question.member(member);
+        question.title( requestBody.getTitle() );
+        question.html(requestBody.getHtml());
+        question.markdown(requestBody.getMarkdown());
+//        question.questionTags(new ArrayList<>()); //빌더 사용시 컬렉션을 생성 안하면 null로 들어감! 빌더 초기화로 업데이트!
 
-        question.setQuestionTags(tagsToQuestionTags(question,tags));
+        return question.build();
+    }
+//    @Mapping(source = "memberId",target = "member.memberId")
+//    Question questionPostToQuestion(QuestionDto.Post requestBody);
 
-        return question;
+//    List<QuestionTag> tagsToQuestionTags(List<Tag> tags);
+
+//    Question questionPatchToQuestion(QuestionDto.Patch requestBody,List<Tag> tags);
+//    default Question questionPatchToQuestion(QuestionDto.Patch requestBody,List<Tag> tags) {
+//            if ( requestBody == null ) {
+//                return null;
+//            }
+//
+//            Question question = new Question();
+//
+//            question.setQuestionId( requestBody.getQuestionId() );
+//            question.setTitle( requestBody.getTitle() );
+//            question.setHtml( requestBody.getHtml() );
+//            question.setMarkdown( requestBody.getMarkdown() );
+//            question.setVoteCount( requestBody.getVoteCount() );
+//            question.setQuestionTags(tagsToQuestionTags(question,tags));
+//            return question;
+//    }
+
+//    default List<QuestionTag> tagsToQuestionTags(Question question,List<Tag> tags) {
+//        List<QuestionTag> questionTags = tags.stream()
+//                .map(requestTag -> {
+//                            QuestionTag questionTag = new QuestionTag();
+//                    try {
+//                        questionTag.setTag(requestTag); // qT -> tag name //id content x
+//                        questionTag.setQuestion(question);
+//                    } catch (Exception e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    return questionTag;
+//                        }
+//                ).collect(Collectors.toList());
+//
+//        return questionTags;
+//    }
+    //리팩터링 단방향으로만 넣어주기
+    default void tagsToQuestionTags(Question question,List<Tag> tags) {
+        for (Tag tag : tags) {
+            QuestionTag questionTag = new QuestionTag();
+            questionTag.setTag(tag);
+            questionTag.setQuestion(question);
+        }
     }
 
-    default Question questionPatchToQuestion(QuestionDto.Patch requestBody,List<Tag> tags) {
-            if ( requestBody == null ) {
-                return null;
-            }
-
-            Question question = new Question();
-
-            question.setQuestionId( requestBody.getQuestionId() );
-            question.setTitle( requestBody.getTitle() );
-            question.setHtml( requestBody.getHtml() );
-            question.setMarkdown( requestBody.getMarkdown() );
-            question.setVoteCount( requestBody.getVoteCount() );
-            question.setQuestionTags(tagsToQuestionTags(question,tags));
-            return question;
-    }
-
-    default List<QuestionTag> tagsToQuestionTags(Question question,List<Tag> tags) {
-        List<QuestionTag> questionTags = tags.stream()
-                .map(requestTag -> {
-                            QuestionTag questionTag = new QuestionTag();
-                            questionTag.addTag(requestTag); // qT -> tag name //id content x
-                            questionTag.addQuestion(question);
-                            return questionTag;
-                        }
-                ).collect(Collectors.toList());
-
-        return questionTags;
-    }
     //질문 전체 조회 Mapper
 //    @Named("Q2R3")
 //    @Mapping(source = "member.nickname",target = "questionMember.nickname")

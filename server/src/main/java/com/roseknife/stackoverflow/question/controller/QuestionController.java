@@ -46,7 +46,8 @@ public class QuestionController {
     public ResponseEntity postQuestion(@Valid @RequestBody QuestionDto.Post requestBody) {
         List<Tag> tags = tagService.findTagNames(requestBody.getTagNames());
 
-        Question question = questionMapper.questionPostToQuestion(requestBody,tags);
+        Question question = questionMapper.questionPostToQuestion(requestBody);
+        questionMapper.tagsToQuestionTags(question, tags);  //태그 리스트 업데이트
 
         Question createQuestion = questionService.createQuestion(question);
         URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, createQuestion.getQuestionId());
@@ -59,10 +60,10 @@ public class QuestionController {
                                         @Valid @RequestBody QuestionDto.Patch requestBody) {
         requestBody.setQuestionId(questionId);
         List<Tag> tags = tagService.findTagNames(requestBody.getTagNames());
-        Question requestQuestion = questionMapper.questionPatchToQuestion(requestBody,tags);
+//        Question requestQuestion = questionMapper.questionPatchToQuestion(requestBody,tags);
 //        requestQuestion.setQuestionTags(questionMapper.tagsToQuestionTags(requestQuestion,tags));
 
-        Question question = questionService.updateQuestion(requestQuestion);
+//        Question question = questionService.updateQuestion(requestQuestion);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
