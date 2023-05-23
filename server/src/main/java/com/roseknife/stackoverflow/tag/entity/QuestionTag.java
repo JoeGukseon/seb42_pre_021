@@ -29,8 +29,8 @@ public class QuestionTag {
 
     public void setTag(Tag tag) {
         this.tag = tag;
-        if (!this.tag.getQuestionTags().contains(this)) {
-            this.tag.getQuestionTags().add(this);
-        }
+//        if (!this.tag.getQuestionTags().contains(this)) {
+//            this.tag.getQuestionTags().add(this);
+//        }
     }
 }
