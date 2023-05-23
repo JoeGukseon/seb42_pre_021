@@ -26,12 +26,15 @@ public class Question extends Auditable {
     private Long questionId;
 
     @Column(length = 100, nullable = false)
+    @Setter
     private String title;
 
     @Column(length = 1_000_000_000)
+    @Setter
     private String html;
 
     @Column(length = 1_000_000_000)
+    @Setter
     private String markdown;
 
     //카운트 초기화 엔티티에서 하는게 유리 - 23.5.16 리팩토링
@@ -48,6 +51,12 @@ public class Question extends Auditable {
     @Builder.Default
     private Integer voteCount=0;
 
+    public void setVoteCount(Integer voteCount) {
+        if (voteCount >= 0) {
+            this.voteCount = voteCount;
+        }
+    }
+
     public void viewCountPlus() {
         viewCount++;
     }
@@ -57,12 +66,7 @@ public class Question extends Auditable {
     public void answerCountMinus() {
         if(answerCount > 0){ answerCount--;}
     }
-    public void voteCountPlus() {
-        voteCount++;
-    }
 
-
-//    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
@@ -76,28 +80,11 @@ public class Question extends Auditable {
     private List<QuestionComment> questionComments = new ArrayList<>();
 
     //질문글과 같이 questionTag의 값이 같이 움직이기 때문에 양방향 맵핑 해야함!(글 생성 및 삭제)
-    @JsonIgnore
     @Builder.Default
+//    @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST,CascadeType.REMOVE}, orphanRemoval = true)
     @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<QuestionTag> questionTags = new ArrayList<>();
 
-    //진짜 맵핑을 하는 QuestionTag가 키를 가지고 있기 때문에 이쪽에서 값을 업데이트 할필요가 x
-//    public void setQuestionTags(List<QuestionTag> questionTags) {
-//        this.questionTags = questionTags;
-//    }
-//
-//    public void addQuestionTag(QuestionTag questionTag) {
-//        this.questionTags.add(questionTag);
-//        if (questionTag.getQuestion() != this) {
-//            questionTag.setQuestion(this);
-//        }
-//    }
-
-//    @OneToMany(mappedBy = "question")
-//    private List<QuestionVote> questionVotes; //voteCount 로 대체
-
-    // modified 55-63
-    @JsonIgnore //1대1 무한루프로 적용 - 이쪽에서만 적용 (추후 알아볼것)
     @OneToOne(mappedBy = "question",cascade = CascadeType.REMOVE)
     private QuestionBookmark questionBookmark;
 
@@ -107,4 +94,5 @@ public class Question extends Auditable {
             questionBookmark.setQuestion(this);
         }
     }
+
 }
