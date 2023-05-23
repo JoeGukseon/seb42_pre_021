@@ -21,9 +21,9 @@ public class Tag {
     private String name;
     private String content;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "tag") // cascade 관게? 학습예제에선 만드는쪽(질문)에서 CascadeType.PERSIST로 작성 되어있음)
-    private List<QuestionTag> questionTags = new ArrayList<>();
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "tag") // cascade 관게? 학습예제에선 만드는쪽(질문)에서 CascadeType.PERSIST로 작성 되어있음)
+//    private List<QuestionTag> questionTags = new ArrayList<>();
 
     public Tag(String name, String content) {
         this.name = name;
