@@ -16,6 +16,7 @@ import com.roseknife.stackoverflow.tag.entity.Tag;
 import com.roseknife.stackoverflow.tag.service.TagService;
 import com.roseknife.stackoverflow.utils.UriCreator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,7 @@ import java.util.List;
 @Validated
 @RequestMapping("/questions")
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionController {
     private final static String QUESTION_DEFAULT_URL = "/questions";
     private final QuestionService questionService;
@@ -60,11 +62,8 @@ public class QuestionController {
                                         @Valid @RequestBody QuestionDto.Patch requestBody) {
         requestBody.setQuestionId(questionId);
         List<Tag> tags = tagService.findTagNames(requestBody.getTagNames());
-//        Question requestQuestion = questionMapper.questionPatchToQuestion(requestBody,tags);
-//        requestQuestion.setQuestionTags(questionMapper.tagsToQuestionTags(requestQuestion,tags));
-
-//        Question question = questionService.updateQuestion(requestQuestion);
-
+        Question requestQuestion = questionMapper.questionPatchToQuestion(requestBody);
+        questionService.updateQuestion(requestQuestion,tags);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
