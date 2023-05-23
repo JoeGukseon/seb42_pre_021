@@ -6,11 +6,14 @@ import com.roseknife.stackoverflow.exception.BusinessLogicException;
 import com.roseknife.stackoverflow.exception.ExceptionCode;
 import com.roseknife.stackoverflow.question.entity.Question;
 import com.roseknife.stackoverflow.question.entity.FindStatus;
+import com.roseknife.stackoverflow.question.mapper.QuestionMapper;
 import com.roseknife.stackoverflow.question.repository.QuestionRepository;
 import com.roseknife.stackoverflow.tag.entity.QuestionTag;
+import com.roseknife.stackoverflow.tag.entity.Tag;
 import com.roseknife.stackoverflow.tag.repository.QuestionTagRepository;
 import com.roseknife.stackoverflow.utils.CustomBeanUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -19,34 +22,40 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
 
     private final QuestionTagRepository questionTagRepository;
-    private final CustomBeanUtils<Question> beanUtils;
+    private final QuestionMapper questionMapper;
 
     public Question createQuestion(Question question) {
         Question savedQuestion = questionRepository.save(question);
         return savedQuestion;
     }
 
-    public Question updateQuestion(Question question) {
+    public Question updateQuestion(Question question, List<Tag> tags) {
         Question findQuestion = findVerifiedQuestion(question.getQuestionId(),FindStatus.NONE);
+        //수정시 title, content, voteCount, tag 변경가능
+        Optional.ofNullable(question.getTitle()).ifPresent(findQuestion::setTitle);
+        Optional.ofNullable(question.getMarkdown()).ifPresent(findQuestion::setMarkdown);
+        Optional.ofNullable(question.getHtml()).ifPresent(findQuestion::setHtml);
+        Optional.ofNullable(question.getVoteCount()).ifPresent(findQuestion::setVoteCount);
 
+        //QuestionTag가 업데이트 시 기존 Tag 삭제
+        if (!tags.isEmpty()) {
+            findQuestion.getQuestionTags().clear(); //QuestionTag 리스트 비우기 (고아객체로 만들기) - orphan 옵션 true
+            questionMapper.tagsToQuestionTags(findQuestion, tags);  //태그 리스트 업데이트
+        }
 
-        Optional.ofNullable(question.getQuestionTags()).ifPresent(questionTags -> {
-            questionTagRepository.deleteByQuestionQuestionId(findQuestion.getQuestionId());
-//            findQuestion.setQuestionTags(questionTags);
-        });
-        Question updatedQuestion = beanUtils.copyNonNullProperties(question, findQuestion);
-
-        return updatedQuestion;
+        return findQuestion;
     }
     public Question findVerifiedQuestion(Long questionId, FindStatus option) {
         Optional<Question> optionalQuestion = questionRepository.findById(questionId);
