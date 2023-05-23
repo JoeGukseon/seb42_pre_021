@@ -21,10 +21,10 @@ import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface QuestionMapper {
-    //기본 질문 Mapper
 
     @Mapping(source = "member.memberId",target = "memberId")
     QuestionBookmarkDto.Response questionBookmarkToQuestionBookmarkResponseDto(QuestionBookmark questionBookmark);
@@ -32,7 +32,6 @@ public interface QuestionMapper {
     @Mapping(source = "member.memberId",target = "memberId")
     AnswerBookmarkDto.Response answerBookmarkToAnswerBookmarkResponseDto(AnswerBookmark answerBookmark);
 
-    //    @Mapping(source = "memberId",target = "member.memberId")
     default Question questionPostToQuestion(QuestionDto.Post requestBody) {
         if ( requestBody == null ) {
             return null;
@@ -46,48 +45,26 @@ public interface QuestionMapper {
         question.title( requestBody.getTitle() );
         question.html(requestBody.getHtml());
         question.markdown(requestBody.getMarkdown());
-//        question.questionTags(new ArrayList<>()); //빌더 사용시 컬렉션을 생성 안하면 null로 들어감! 빌더 초기화로 업데이트!
 
         return question.build();
     }
-//    @Mapping(source = "memberId",target = "member.memberId")
-//    Question questionPostToQuestion(QuestionDto.Post requestBody);
 
-//    List<QuestionTag> tagsToQuestionTags(List<Tag> tags);
+    default Question questionPatchToQuestion(QuestionDto.Patch requestBody) {
+        if ( requestBody == null ) {
+            return null;
+        }
 
-//    Question questionPatchToQuestion(QuestionDto.Patch requestBody,List<Tag> tags);
-//    default Question questionPatchToQuestion(QuestionDto.Patch requestBody,List<Tag> tags) {
-//            if ( requestBody == null ) {
-//                return null;
-//            }
-//
-//            Question question = new Question();
-//
-//            question.setQuestionId( requestBody.getQuestionId() );
-//            question.setTitle( requestBody.getTitle() );
-//            question.setHtml( requestBody.getHtml() );
-//            question.setMarkdown( requestBody.getMarkdown() );
-//            question.setVoteCount( requestBody.getVoteCount() );
-//            question.setQuestionTags(tagsToQuestionTags(question,tags));
-//            return question;
-//    }
+        Question.QuestionBuilder question = Question.builder();
 
-//    default List<QuestionTag> tagsToQuestionTags(Question question,List<Tag> tags) {
-//        List<QuestionTag> questionTags = tags.stream()
-//                .map(requestTag -> {
-//                            QuestionTag questionTag = new QuestionTag();
-//                    try {
-//                        questionTag.setTag(requestTag); // qT -> tag name //id content x
-//                        questionTag.setQuestion(question);
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    return questionTag;
-//                        }
-//                ).collect(Collectors.toList());
-//
-//        return questionTags;
-//    }
+        question.questionId( requestBody.getQuestionId() );
+        question.title( requestBody.getTitle() );
+        question.html( requestBody.getHtml() );
+        question.markdown( requestBody.getMarkdown() );
+        question.voteCount( requestBody.getVoteCount() );
+
+        return question.build();
+    }
+
     //리팩터링 단방향으로만 넣어주기
     default void tagsToQuestionTags(Question question,List<Tag> tags) {
         for (Tag tag : tags) {
@@ -153,11 +130,9 @@ public interface QuestionMapper {
         Long answerId = requestBody.getAnswerId();
         LocalDateTime createdAt = requestBody.getCreatedAt();
         LocalDateTime modifiedAt = requestBody.getModifiedAt();
-//        String content = requestBody.getContent();
         String html = requestBody.getHtml();
         String markdown = requestBody.getMarkdown();
         Integer voteCount = requestBody.getVoteCount();
-//        AnswerBookmark answerBookmark = requestBody.getAnswerBookmark();
         AnswerBookmarkDto.Response answerBookmark = answerBookmarkToAnswerBookmarkResponseDto(requestBody.getAnswerBookmark());
         List<AnswerCommentDto.Response> answerCommentResponse = answerCommentsToAnswerCommentResponseDtos(requestBody.getAnswerComments());
         QuestionDto.QuestionAnswer questionAnswer = new QuestionDto.QuestionAnswer(answerId, createdAt, modifiedAt,
@@ -188,14 +163,12 @@ public interface QuestionMapper {
         QuestionDto.QuestionMember questionMember = new QuestionDto.QuestionMember(question.getMember().getMemberId(),question.getMember().getNickname(),question.getMember().getProfile());
         List<QuestionDto.QuestionCommentResponse> questionComments = null;
         List<QuestionDto.QuestionAnswer> questionAnswers = null;
-//        List<QuestionTag> questionTags = question.getQuestionTags();
         List<String> questionTags = new ArrayList<>();
         for (QuestionTag questionTag : question.getQuestionTags()) {
             questionTags.add(questionTag.getTag().getName());
         }
         Long questionId = question.getQuestionId();
         String title = question.getTitle();
-//        String content = question.getContent();
         String html = question.getHtml();
         String markdown = question.getMarkdown();
         LocalDateTime createdAt = question.getCreatedAt();
