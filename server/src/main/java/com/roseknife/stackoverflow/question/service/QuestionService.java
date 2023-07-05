@@ -83,13 +83,15 @@ public class QuestionService {
         return findVerifiedQuestion(questionId,FindStatus.FIND);
     }
 
+    @Transactional(readOnly=true)
     public Page<Question> findQuestions(int page, int size, String sortDir, String sortBy) {
         //리팩토링 여부?
         PageRequest request;
 
         request = PageRequest.of(page, size, Sort.Direction.valueOf(sortDir), sortBy);
 
-        return questionRepository.findAll(request);
+//        return questionRepository.findAll(request);
+        return questionRepository.findQuestionsWithAssociations(request);
     }
 
     public Page<Question> searchQuestions(int page, int size, String sortDir, String sortBy, String keyword) {
