@@ -5,15 +5,17 @@ import lombok.Getter;
 
 import javax.persistence.*;
 
+import static javax.persistence.FetchType.*;
+
 @Entity
 @Getter
 public class QuestionTag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long questionTagId;
 
     //진짜 맵핑을 하는 부분 외래키가 저장되는 부분
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "QUESTION_ID")
     private Question question;
      public void setQuestion(Question question) {
@@ -23,14 +25,11 @@ public class QuestionTag {
         }
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "TAG_ID")
     private Tag tag;
 
     public void setTag(Tag tag) {
         this.tag = tag;
-//        if (!this.tag.getQuestionTags().contains(this)) {
-//            this.tag.getQuestionTags().add(this);
-//        }
     }
 }
